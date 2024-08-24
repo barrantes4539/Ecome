@@ -1,0 +1,407 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-12"> <!-- Aumenté el ancho para acomodar la tabla -->
+            <br/><br/>
+            <h3 class="text-center">Usuarios</h3>
+        
+            <div class="table-responsive">
+                <table id="table_users" class="table table-striped table-hover table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Nombre de Usuario</th>
+                            <th>Permiso</th>
+                            <th>Correo</th>
+                            <th>Teléfono</th>
+                            <th>Dirección</th>
+                            <th>Dirección 2</th>
+                            <th>Ciudad</th>
+                            <th>Provincia</th>
+                            <th>ZIP</th>
+                            <th>País</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td name="user_username">
+                                <span>{{ user.username }}</span>
+                                <input type="text" id="user_username" name="user_username" class="form-control d-none" value="{{ user.username }}">
+                            </td>
+                            <td name="user_type"><span>{{ user.is_superuser|yesno:"Administrador,Usuario" }}</span></td>
+                            <td name="user_email">
+                                <span>{{ user.email }}</span>
+                                <input type="text" id="user_email" name="user_email" class="form-control d-none" value="{{ user.email }}">
+                            </td>
+                            <td name="user_phone">
+                                <span>{{ user.profile.phone }}</span>
+                                <input type="text" id="user_phone" name="user_phone" class="form-control d-none" value="{{ user.profile.phone }}">
+                            </td>
+                            <td name="user_address">
+                                <span>{{ user.profile.address }}</span>
+                                <input type="text" id="user_address" name="user_address" class="form-control d-none" value="{{ user.profile.address }}">
+                            </td>
+                            <td name="user_address2">
+                                <span>{{ user.profile.address2 }}</span>
+                                <input type="text" id="user_address2" name="user_address2" class="form-control d-none" value="{{ user.profile.address2 }}">
+                            </td>
+                            <td name="user_city">
+                                <span>{{ user.profile.city }}</span>
+                                <input type="text" id="user_city" name="user_city" class="form-control d-none" value="{{ user.profile.city }}">
+                            </td>
+                            <td name="user_state">
+                                <span>{{ user.profile.state }}</span>
+                                <input type="text" id="user_state" name="user_state" class="form-control d-none" value="{{ user.profile.state }}">
+                            </td>
+                            <td name="user_zipcode">
+                                <span>{{ user.profile.zipcode }}</span>
+                                <input type="text" id="user_zipcode" name="user_zipcode" class="form-control d-none" value="{{ user.profile.zipcode }}">
+                            </td>
+                            <td name="user_country">
+                                <span>{{ user.profile.country }}</span>
+                                <input type="text" id="user_country" name="user_country" class="form-control d-none" value="{{ user.profile.country }}">
+                            </td>
+                            <td>
+                                <button class="btn btn-info btn-edit">Editar</button>
+                                <input type="hidden" id="user_id" name="user_id" value="{{ user.id }}">
+                                <button type="button" id="update_user" class="btn btn-success btn-sm btn-confirm d-none" style="margin-right: 4px;"><i class='bx bx-check'></i></button>
+                                <button class="btn btn-sm btn-danger btn-delete d-none" id="delete_user" style="margin-right: 4px;"><i class='bx bx-trash'></i></button>
+                                <button class="btn btn-sm btn-outline-secondary btn-cancel d-none" style="margin-top: 10px;">Cancelar</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <button type="button" id="add_user" class="btn btn-success btn-add" data-bs-toggle="modal" data-bs-target="#add_user_modal">Añadir Usuario</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para agregar usuario -->
+<div class="modal fade" id="add_user_modal" tabindex="-1" aria-labelledby="addUserLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="addUserLabel">Añadir Usuario</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{% url 'admin_users' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="add_user" value="true">
+                    {{ form.as_p }}
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="submit" class="btn btn-primary">Añadir</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="delete_user_modal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro de eliminar al usuario?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirm_delete_user">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        $('#table_products').DataTable({
+            "language": {
+                "decimal":        "",
+                "emptyTable":     "No hay datos disponibles en la tabla",
+                "info":           "Mostrando _START_ a _END_ de _TOTAL_ entradas",
+                "infoEmpty":      "Mostrando 0 a 0 de 0 entradas",
+                "infoFiltered":   "(filtrado de _MAX_ entradas totales)",
+                "infoPostFix":    "",
+                "thousands":      ",",
+                "lengthMenu":     "Mostrar _MENU_ entradas",
+                "loadingRecords": "Cargando...",
+                "processing":     "Procesando...",
+                "search":         "Buscar:",
+                "zeroRecords":    "No se encontraron registros coincidentes",
+                "paginate": {
+                    "next":       "Siguiente",
+                    "previous":   "Anterior"
+                },
+                "aria": {
+                    "sortAscending":  ": activar para ordenar la columna ascendente",
+                    "sortDescending": ": activar para ordenar la columna descendente"
+                }
+            },
+            "order": [] // Deshabilitar ordenamiento inicial
+        });
+
+        $('.btn-edit').click(function() {
+            // Encontrar elementos relacionados en la misma fila
+            var row = $(this).closest('tr');
+            var btnEditar = $(this);
+            var btnConfirmar = row.find('.btn-confirm');
+            var btnCancel = row.find('.btn-cancel');
+            var btnDelete = row.find('.btn-delete');
+            var spanUsername = row.find('td[name="user_username"] span');
+            var inputUsername = row.find('td[name="user_username"] input[type="text"]');
+            var spanEmail = row.find('td[name="user_email"] span');
+            var inputEmail = row.find('td[name="user_email"] input[type="text"]');
+            var spanPhone = row.find('td[name="user_phone"] span');
+            var inputPhone = row.find('td[name="user_phone"] input[type="text"]');
+            var spanAddress = row.find('td[name="user_address"] span');
+            var inputAddress = row.find('td[name="user_address"] input[type="text"]');
+            var spanAddress2 = row.find('td[name="user_address2"] span');
+            var inputAddress2 = row.find('td[name="user_address2"] input[type="text"]');
+            var spanCity = row.find('td[name="user_city"] span');
+            var inputCity = row.find('td[name="user_city"] input[type="text"]');
+            var spanState = row.find('td[name="user_state"] span');
+            var inputState = row.find('td[name="user_state"] input[type="text"]');
+            var spanZipCode = row.find('td[name="user_zipcode"] span');
+            var inputZipCode = row.find('td[name="user_zipcode"] input[type="text"]');
+            var spanCountry = row.find('td[name="user_country"] span');
+            var inputCountry = row.find('td[name="user_country"] input[type="text"]');
+
+            // Ocultar botón Editar y mostrar botón Confirmar
+            btnEditar.addClass('d-none');
+            btnConfirmar.removeClass('d-none');
+            btnCancel.removeClass('d-none');
+            btnDelete.removeClass('d-none');
+
+            // Mostrar input para editar datos y ocultar spans
+            inputUsername.removeClass('d-none');
+            spanUsername.addClass('d-none');
+            inputEmail.removeClass('d-none');
+            spanEmail.addClass('d-none');
+            inputPhone.removeClass('d-none');
+            spanPhone.addClass('d-none');
+            inputAddress.removeClass('d-none');
+            spanAddress.addClass('d-none');
+            inputAddress2.removeClass('d-none');
+            spanAddress2.addClass('d-none');
+            inputEmail.removeClass('d-none');
+            spanEmail.addClass('d-none');
+            inputPhone.removeClass('d-none');
+            spanPhone.addClass('d-none');
+            inputAddress.removeClass('d-none');
+            spanAddress.addClass('d-none');
+            inputAddress2.removeClass('d-none');
+            spanAddress2.addClass('d-none');
+            inputCity.removeClass('d-none');
+            spanCity.addClass('d-none');
+            inputState.removeClass('d-none');
+            spanState.addClass('d-none');
+            inputZipCode.removeClass('d-none');
+            spanZipCode.addClass('d-none');
+            inputCountry.removeClass('d-none');
+            spanCountry.addClass('d-none');
+        });
+
+        // Evento para el botón Confirmar
+        $('.btn-confirm').click(function() {
+            var row = $(this).closest('tr');
+            var btnEditar = row.find('.btn-edit');
+            var btnConfirmar = $(this);
+            var btnCancel = row.find('.btn-cancel');
+            var btnDelete = row.find('.btn-delete');
+            var spanUsername = row.find('td[name="username"] span');
+            var inputUsername = row.find('td[name="username"] input[type="text"]');
+            var spanEmail = row.find('td[name="email"] span');
+            var inputEmail = row.find('td[name="email"] input[type="text"]');
+            var spanPhone = row.find('td[name="phone"] span');
+            var inputPhone = row.find('td[name="phone"] input[type="text"]');
+            var spanAddress = row.find('td[name="address"] span');
+            var inputAddress = row.find('td[name="address"] input[type="text"]');
+
+            // Mostrar botón Editar y ocultar botón Confirmar
+            btnEditar.removeClass('d-none');
+            btnConfirmar.addClass('d-none');
+            btnCancel.addClass('d-none');
+            btnDelete.addClass('d-none');
+
+            // Ocultar inputs de edición y mostrar spans
+            inputUsername.addClass('d-none');
+            spanUsername.removeClass('d-none');
+            inputEmail.addClass('d-none');
+            spanEmail.removeClass('d-none');
+            inputPhone.addClass('d-none');
+            spanPhone.removeClass('d-none');
+            inputAddress.addClass('d-none');
+            spanAddress.removeClass('d-none');
+        });
+
+        // Evento para el botón Cancelar
+        $('.btn-cancel').click(function() {
+            var row = $(this).closest('tr');
+            var btnEditar = row.find('.btn-edit');
+            var btnConfirmar = row.find('.btn-confirm');
+            var btnCancel = $(this);
+            var btnDelete = row.find('.btn-delete');
+            var spanUsername = row.find('td[name="user_username"] span');
+            var inputUsername = row.find('td[name="user_username"] input[type="text"]');
+            var spanEmail = row.find('td[name="user_email"] span');
+            var inputEmail = row.find('td[name="user_email"] input[type="text"]');
+            var spanPhone = row.find('td[name="user_phone"] span');
+            var inputPhone = row.find('td[name="user_phone"] input[type="text"]');
+            var spanAddress = row.find('td[name="user_address"] span');
+            var inputAddress = row.find('td[name="user_address"] input[type="text"]');
+            var spanAddress2 = row.find('td[name="user_address2"] span');
+            var inputAddress2 = row.find('td[name="user_address2"] input[type="text"]');
+            var spanCity = row.find('td[name="user_city"] span');
+            var inputCity = row.find('td[name="user_city"] input[type="text"]');
+            var spanState = row.find('td[name="user_state"] span');
+            var inputState = row.find('td[name="user_state"] input[type="text"]');
+            var spanZipCode = row.find('td[name="user_zipcode"] span');
+            var inputZipCode = row.find('td[name="user_zipcode"] input[type="text"]');
+            var spanCountry = row.find('td[name="user_country"] span');
+            var inputCountry = row.find('td[name="user_country"] input[type="text"]');
+
+            // Mostrar botón Editar y ocultar botón Confirmar
+            btnEditar.removeClass('d-none');
+            btnConfirmar.addClass('d-none');
+            btnCancel.addClass('d-none');
+            btnDelete.addClass('d-none');
+
+            // Ocultar inputs de edición y mostrar spans
+            inputUsername.addClass('d-none');
+            spanUsername.removeClass('d-none');
+            inputEmail.addClass('d-none');
+            spanEmail.removeClass('d-none');
+            inputPhone.addClass('d-none');
+            spanPhone.removeClass('d-none');
+            inputAddress.addClass('d-none');
+            spanAddress.removeClass('d-none');
+            inputAddress2.addClass('d-none');
+            spanAddress2.removeClass('d-none');
+            inputCity.addClass('d-none');
+            spanCity.removeClass('d-none');
+            inputState.addClass('d-none');
+            spanState.removeClass('d-none');
+            inputZipCode.addClass('d-none');
+            spanZipCode.removeClass('d-none');
+            inputCountry.addClass('d-none');
+            spanCountry.removeClass('d-none');
+        });
+
+        // Evento para actualizar el usuario
+        $(document).on('click', '#update_user', function(e) {
+            e.preventDefault();
+
+            var row = $(this).closest('tr');
+            var userId = row.find('#user_id').val();
+            var username = row.find('#user_username').val();
+            var email = row.find('#user_email').val();
+            var phone = row.find('#user_phone').val();
+            var address = row.find('#user_address').val();
+            var address2 = row.find('#user_address2').val();
+            var city = row.find('#user_city').val();
+            var state = row.find('#user_state').val();
+            var zipcode = row.find('#user_zipcode').val();
+            var country = row.find('#user_country').val();
+
+            var formData = new FormData();
+            formData.append('user_id', userId);
+            formData.append('username', username);
+            formData.append('email', email);
+            formData.append('phone', phone);
+            formData.append('address', address);
+            formData.append('address2', address2);
+            formData.append('city', city);
+            formData.append('state', state);
+            formData.append('zipcode', zipcode);
+            formData.append('country', country);
+            formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+            formData.append('action', 'post');
+
+            // Enviar la solicitud POST al servidor
+            $.ajax({
+                type: 'POST',
+                url: '{% url 'update_users' %}',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    if (response && response.message) {
+                        swal("Éxito", response.message, "success")
+                            .then(function() {
+                                window.location.reload(); // Recargar la página después de actualizar el usuario
+                            });
+                    } else {
+                        swal("Error", "Ocurrió un problema al actualizar el usuario", "error");
+                    }
+                },
+                error: function(xhr, errmsg, err) {
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        swal("Error", xhr.responseJSON.error, "error");
+                    } else {
+                        swal("Error", "Ocurrió un problema en el servidor", "error");
+                    }
+                }
+            });
+        });
+
+        // Evento para eliminar un usuario
+        $(document).on('click', '#delete_user', function(e) {
+            e.preventDefault();
+
+            var row = $(this).closest('tr');
+            var userId = row.find('#user_id').val();
+            var username = row.find('#username').val();
+
+            $.ajax({
+                type: 'POST',
+                url: '{% url 'delete_users' %}',
+                data: {
+                    user_id: userId,
+                    username: username,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                    action: 'post'
+                },
+                success: function(response) {
+                    if (response && response.message) {
+                        swal("Éxito", response.message, "success")
+                            .then(function() {
+                                window.location.reload(); // Recargar la página después de eliminar el usuario
+                            });
+                    } else {
+                        swal("Éxito", "Usuario eliminado correctamente", "success")
+                            .then(function() {
+                                window.location.reload(); // Recargar la página después de eliminar el usuario
+                            });
+                    }
+                },
+                error: function(xhr, errmsg, err) {
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        swal("Error", xhr.responseJSON.error, "error");
+                    } else {
+                        swal("Error", "Ocurrió un problema en el servidor", "error");
+                    }
+                }
+            });
+        });
+
+        $('#add_user').click(function() {
+            $('#add_user_modal').modal('show');
+        });
+
+    });
+</script>
+
+
+
+
+{% endblock %}

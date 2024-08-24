@@ -1,23 +1,22 @@
 from django.urls import path, include
 from . import views
 
-
 urlpatterns = [
-    #Default URL
+    #DEFAULT URL
     path('', views.home, name='home'),
-    #Store
+    #STORE
     path('about/', views.about, name='about'),
     path('product/<int:pk>', views.product, name='product'),
     path('category/<str:cat>', views.category, name='category'),
-    #Auth
+    #AUTHENTICATION
     path('login/', views.login_user, name='login'),
     path('logout/', views.logout_user, name='logout'),
     path('register/', views.register_user, name='register'),
-    #User
+    #USER
     path('user_profile/', views.user_profile, name='user_profile'),
     path('user_info/', views.user_info, name='user_info'),
     path('update_password/', views.update_password, name='update_password'),
-    #Admin
+    #ADMIN FUNCTIONS
     path('admin_categories/', views.admin_categories, name='admin_categories'),
     path('update_categories/', views.update_categories, name='update_categories'),
     path('add_categories/', views.add_categories, name='add_categories'),
@@ -26,4 +25,9 @@ urlpatterns = [
     path('update_products/', views.update_products, name='update_products'),
     path('add_products/', views.add_products, name='add_products'),
     path('delete_products/', views.delete_products, name='delete_products'),
+    path('admin_users/', views.admin_users, name='admin_users'),
+    path('update_users/', views.update_users, name='update_users'),
+    path('add_users/', views.add_users, name='add_users'),
+    path('delete_users/', views.delete_users, name='delete_users'),
+    
 ]

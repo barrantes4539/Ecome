@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .forms import SignUpForm, UpdateUserForm, ChangePasswordForm, UserInfoForm
+from .forms import SignUpForm, SignUpFormAdmin, UpdateUserForm, ChangePasswordForm, UserInfoForm
 from payment.forms import ShippingForm
 from payment.models import ShippingAddress
 from django import forms
@@ -19,7 +19,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 
 #ADMIN FUNCTIONS
 
-#Categories
+#Admin Categories
 def admin_categories(request):
     if request.user.is_authenticated and request.user.is_superuser:
         
@@ -28,16 +28,7 @@ def admin_categories(request):
     else:
         messages.success(request, "Access Denied")
         return redirect('home')
-#Products
-def admin_products(request):
-    if request.user.is_authenticated and request.user.is_superuser:
-        products = Product.objects.select_related('category').all()
-        categories = Category.objects.all()
-        return render(request, 'admin_products.html', {'products': products, 'categories':categories})
-    else:
-        return redirect('home')
-
-#Admin Categorias
+    
 @require_POST
 def update_categories(request):
     # Ensure the action is 'post'
@@ -104,7 +95,15 @@ def delete_categories(request):
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
-#Admin Productos
+#Admin Products
+def admin_products(request):
+    if request.user.is_authenticated and request.user.is_superuser:
+        products = Product.objects.select_related('category').all()
+        categories = Category.objects.all()
+        return render(request, 'admin_products.html', {'products': products, 'categories':categories})
+    else:
+        return redirect('home')
+    
 @require_POST
 def update_products(request):
     # Ensure that the request is POST
@@ -139,7 +138,7 @@ def update_products(request):
             return JsonResponse({'error': 'El producto especificado no existe.'}, status=404)
         
         except ValueError:
-            return JsonResponse({'error': 'El ID de categoría proporcionado no es válido.'}, status=400)
+            return JsonResponse({'error': 'El ID del producto proporcionado no es válido.'}, status=400)
         
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
@@ -198,6 +197,178 @@ def delete_products(request):
             return JsonResponse({'error': str(e)}, status=500)
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
+
+#Admin Users
+    
+def admin_users(request):
+    if request.user.is_authenticated and request.user.is_superuser:
+        if request.method == "POST":
+            if 'add_user' in request.POST:
+                form = SignUpFormAdmin(request.POST)
+                if form.is_valid():
+                    user = form.save(commit=False)
+                    user_type = form.cleaned_data['user_type']
+                    if user_type == 'admin':
+                        user.is_superuser = True
+                        user.is_staff = True
+                    else:
+                        user.is_superuser = False
+                        user.is_staff = False
+                    form.save()
+                    messages.success(request, "El usuario ha sido registrado exitósamente!!")
+                    return redirect('admin_users')
+                else:
+                    error_messages = form.errors.as_data()
+                    for field, errors in error_messages.items():
+                        for error in errors:
+                            messages.error(request, f"{field}: {error.message}")
+                    messages.error(request, "Ha habido un error registrando la cuenta, intente de nuevo")
+                    return redirect('admin_users')
+            # Agregar lógica adicional para otros formularios POST si es necesario
+
+        else:
+            form = SignUpFormAdmin()  # Create an empty form instance
+
+        # Fetch all registered users and their related profile data
+        users = User.objects.all().select_related('profile')
+        
+        return render(request, 'admin_users.html', {
+            'users': users,
+            'form': form,
+        })
+    else:
+        return redirect('home')
+    
+@require_POST
+def update_users(request):
+    # Asegúrate de que la solicitud sea POST
+    if request.POST.get('action') == 'post':
+        # Obtener datos del POST
+        user_id = int(request.POST.get('user_id'))
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone')
+        address = request.POST.get('address')
+        address2 = request.POST.get('address2')
+        city = request.POST.get('city')
+        state = request.POST.get('state')
+        zipcode = request.POST.get('zipcode')
+        country = request.POST.get('country')
+
+        try:
+            # Obtener el usuario de la base de datos
+            user = User.objects.get(id=user_id)
+            
+            # Actualizar los campos del usuario
+            user.username = username
+            user.email = email
+            
+            # Actualizar otros campos de UserProfile
+            user.profile.phone = phone
+            user.profile.address = address
+            user.profile.address2 = address2
+            user.profile.city = city
+            user.profile.state = state
+            user.profile.zipcode = zipcode
+            user.profile.country = country
+            
+            # Guardar los cambios en el perfil del usuario
+            user.profile.save()
+            user.save()
+            
+            return JsonResponse({'message': f"Usuario '{username}' actualizado correctamente."})
+        
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'El usuario especificado no existe.'}, status=404)
+        
+        except ValueError:
+            return JsonResponse({'error': 'El ID del usuario proporcionado no es válido.'}, status=400)
+        
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    return JsonResponse({'error': 'Solicitud inválida'}, status=400)
+
+@require_POST
+def add_users(request):
+    # Ensure that the request is POST
+    if request.POST.get('action') == 'post':
+        # Get data
+        product_id = int(request.POST.get('product_id'))
+        product_name = request.POST.get('product_name')
+        product_price = request.POST.get('product_price')
+        product_category_id = request.POST.get('product_category')  # Obtener el ID de la categoría
+        product_image = request.FILES.get('product_image')  # Obtener la imagen del producto
+        
+        try:
+            # Obtener el producto de la base de datos
+            product = Product.objects.get(id=product_id)
+            product.name = product_name
+            product.sale_price = product_price
+            
+            # Actualizar la categoría solo si se proporcionó un ID válido y no es 'undefined'
+            if product_category_id and product_category_id != 'undefined':
+                product.category_id = int(product_category_id)
+
+            # Actualizar la imagen solo si se proporcionó
+            if product_image:
+                product.image = product_image
+            
+            # Guardar el producto actualizado
+            product.save()
+            
+            return JsonResponse({'message': f"Producto '{product_name}' actualizado correctamente."})
+        
+        except Product.DoesNotExist:
+            return JsonResponse({'error': 'El producto especificado no existe.'}, status=404)
+        
+        except ValueError:
+            return JsonResponse({'error': 'El ID del producto proporcionado no es válido.'}, status=400)
+        
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    return JsonResponse({'error': 'Solicitud inválida'}, status=400)
+
+@require_POST
+def delete_users(request):
+    # Ensure that the request is POST
+    if request.POST.get('action') == 'post':
+        # Get data
+        product_id = int(request.POST.get('product_id'))
+        product_name = request.POST.get('product_name')
+        product_price = request.POST.get('product_price')
+        product_category_id = request.POST.get('product_category')  # Obtener el ID de la categoría
+        product_image = request.FILES.get('product_image')  # Obtener la imagen del producto
+        
+        try:
+            # Obtener el producto de la base de datos
+            product = Product.objects.get(id=product_id)
+            product.name = product_name
+            product.sale_price = product_price
+            
+            # Actualizar la categoría solo si se proporcionó un ID válido y no es 'undefined'
+            if product_category_id and product_category_id != 'undefined':
+                product.category_id = int(product_category_id)
+
+            # Actualizar la imagen solo si se proporcionó
+            if product_image:
+                product.image = product_image
+            
+            # Guardar el producto actualizado
+            product.save()
+            
+            return JsonResponse({'message': f"Producto '{product_name}' actualizado correctamente."})
+        
+        except Product.DoesNotExist:
+            return JsonResponse({'error': 'El producto especificado no existe.'}, status=404)
+        
+        except ValueError:
+            return JsonResponse({'error': 'El ID del producto proporcionado no es válido.'}, status=400)
+        
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    return JsonResponse({'error': 'Solicitud inválida'}, status=400)
 
 
 

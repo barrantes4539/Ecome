@@ -29,6 +29,51 @@ class SignUpForm(UserCreationForm):
         self.fields['password2'].label = ''
         self.fields['password2'].help_text = '<span class="form-text text-muted"><small>Ingrese su contraseña nuevamente.</small></span>'
 
+class SignUpFormAdmin(UserCreationForm):
+    email = forms.EmailField(
+        label="", 
+        widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Correo Electrónico'}), 
+        required=True
+    )
+    first_name = forms.CharField(
+        label="", 
+        max_length=100, 
+        widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Nombre'}), 
+        required=True
+    )
+    last_name = forms.CharField(
+        label="", 
+        max_length=100, 
+        widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Apellidos'}), 
+        required=True
+    )
+    user_type = forms.ChoiceField(
+        choices=[('user', 'Usuario'), ('admin', 'Administrador')],
+        label='Tipo de Usuario',
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+    class Meta:
+        model = User
+        fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2', 'user_type')
+
+    def __init__(self, *args, **kwargs):
+        super(SignUpFormAdmin, self).__init__(*args, **kwargs)
+        self.fields['username'].widget.attrs['class'] = 'form-control'
+        self.fields['username'].widget.attrs['placeholder'] = 'Nombre de Usuario'
+        self.fields['username'].label = ''
+        self.fields['username'].help_text = '<span class="form-text text-muted"><small>Requerido. Menos de 150 caracteres. Letras, digitos y @/./+/-/_ únicamente.</small></span>'
+
+        self.fields['password1'].widget.attrs['class'] = 'form-control'
+        self.fields['password1'].widget.attrs['placeholder'] = 'Contraseña'
+        self.fields['password1'].label = ''
+        self.fields['password1'].help_text = '<ul class="form-text text-muted small"><li>Su contraseña debe contener al menos 8 caracteres.</li><li>Su contraseña no puede ser una contraseña de uso común.</li><li>Su contraseña no puede ser enteramente numérica.</li></ul>'
+
+        self.fields['password2'].widget.attrs['class'] = 'form-control'
+        self.fields['password2'].widget.attrs['placeholder'] = 'Confirmar contraseña.'
+        self.fields['password2'].label = ''
+        self.fields['password2'].help_text = '<span class="form-text text-muted"><small>Ingrese su contraseña nuevamente.</small></span>'
+
 class UpdateUserForm(UserChangeForm):
     password = None  # Remove the password field
     email = forms.EmailField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Correo Electrónico'}), required=False)
@@ -41,6 +86,23 @@ class UpdateUserForm(UserChangeForm):
 
     def __init__(self, *args, **kwargs):
         super(UpdateUserForm, self).__init__(*args, **kwargs)
+        self.fields['username'].widget.attrs['class'] = 'form-control'
+        self.fields['username'].widget.attrs['placeholder'] = 'Nombre de Usuario'
+        self.fields['username'].label = ''
+        self.fields['username'].help_text = None  # Remove help text
+        
+class UpdateUserFormAdmin(UserChangeForm):
+    password = None  # Remove the password field
+    email = forms.EmailField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Correo Electrónico'}), required=False)
+    first_name = forms.CharField(label="", max_length=100, widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Nombre'}), required=False)
+    last_name = forms.CharField(label="", max_length=100, widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Apellidos'}), required=False)
+
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name', 'email', 'username')
+
+    def __init__(self, *args, **kwargs):
+        super(UpdateUserFormAdmin, self).__init__(*args, **kwargs)
         self.fields['username'].widget.attrs['class'] = 'form-control'
         self.fields['username'].widget.attrs['placeholder'] = 'Nombre de Usuario'
         self.fields['username'].label = ''
