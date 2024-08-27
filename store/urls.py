@@ -12,6 +12,11 @@ urlpatterns = [
     path('login/', views.login_user, name='login'),
     path('logout/', views.logout_user, name='logout'),
     path('register/', views.register_user, name='register'),
+    path('send_email_recovery/', views.send_email_recovery, name='send_email_recovery'),
+    path('recovery_page/', views.recovery_page, name='recovery_page'),  # URL para mostrar el formulario de recuperación
+    path('verify_recovery_code/', views.verify_recovery_code, name='verify_recovery_code'), 
+    path('reset_password/', views.reset_password, name='reset_password'),  
+    
     #USER
     path('user_profile/', views.user_profile, name='user_profile'),
     path('user_info/', views.user_info, name='user_info'),

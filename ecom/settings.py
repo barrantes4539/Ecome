@@ -73,6 +73,23 @@ TEMPLATES = [
     },
 ]
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
+
+#EMAIL STUFF    
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'ecom0876@gmail.com'
+EMAIL_HOST_PASSWORD = 'glvp ayrc kqlk uqxh'  # The app-specific password you generated
+DEFAULT_FROM_EMAIL = 'ecom0876@gmail.com'
+#END EMAIL STUFF
+
 WSGI_APPLICATION = 'ecom.wsgi.application'
 
 
@@ -137,3 +154,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #root
 #root1234
 #git config --global core.autocrlf true
+
+#Email Support
+#email: ecom0876@gmail.com
+#password: password of kevinbarrantes02@gmail.com
+#security code: glvp ayrc kqlk uqxh
+

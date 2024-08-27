@@ -4,30 +4,59 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm, SetPassw
 from .models import Profile, Product
 
 class SignUpForm(UserCreationForm):
-    email = forms.EmailField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Correo Electrónico'}), required=True)
-    first_name = forms.CharField(label="", max_length=100, widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Nombre'}), required=True)
-    last_name = forms.CharField(label="", max_length=100, widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Apellidos'}), required=True)
+    username = forms.CharField(
+        label="Nombre de Usuario",
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Nombre de Usuario',
+            'style': 'width: 100%; padding: 0.5rem; border: 1px solid #ced4da; border-radius: 0.25rem;'
+        }),
+        required=True
+    )
+    email = forms.EmailField(
+        label="Correo Electrónico",
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Correo Electrónico',
+            'style': 'width: 100%; padding: 0.5rem; border: 1px solid #ced4da; border-radius: 0.25rem;'
+        }),
+        required=True
+    )
+    first_name = forms.CharField(
+        label="Nombre",
+        max_length=100,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Nombre',
+            'style': 'width: 100%; padding: 0.5rem; border: 1px solid #ced4da; border-radius: 0.25rem;'
+        }),
+        required=True
+    )
+    last_name = forms.CharField(
+        label="Apellidos",
+        max_length=100,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Apellidos',
+            'style': 'width: 100%; padding: 0.5rem; border: 1px solid #ced4da; border-radius: 0.25rem;'
+        }),
+        required=True
+    )
 
     class Meta:
-        model = User
+        model = User  # Adjust if needed
         fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2')
 
     def __init__(self, *args, **kwargs):
         super(SignUpForm, self).__init__(*args, **kwargs)
-        self.fields['username'].widget.attrs['class'] = 'form-control'
-        self.fields['username'].widget.attrs['placeholder'] = 'Nombre de Usuario'
-        self.fields['username'].label = ''
-        self.fields['username'].help_text = '<span class="form-text text-muted"><small>Requerido. Menos de 150 caracteres. Letras, digitos y @/./+/-/_ únicamente.</small></span>'
-
-        self.fields['password1'].widget.attrs['class'] = 'form-control'
-        self.fields['password1'].widget.attrs['placeholder'] = 'Contraseña'
-        self.fields['password1'].label = ''
-        self.fields['password1'].help_text = '<ul class="form-text text-muted small"><li>Su contraseña debe contener al menos 8 caracteres.</li><li>Su contraseña no puede ser una contraseña de uso común.</li><li>Su contraseña no puede ser enteramente numérica.</li></ul>'
-
-        self.fields['password2'].widget.attrs['class'] = 'form-control'
-        self.fields['password2'].widget.attrs['placeholder'] = 'Confirmar contraseña.'
-        self.fields['password2'].label = ''
-        self.fields['password2'].help_text = '<span class="form-text text-muted"><small>Ingrese su contraseña nuevamente.</small></span>'
+        for field_name, field in self.fields.items():
+            field.widget.attrs.update({
+                'class': 'form-control',
+                'style': 'width: 100%; padding: 0.5rem; border: 1px solid #ced4da; border-radius: 0.25rem;'
+            })
+            field.label = ''
+            field.help_text = None
+    
 
 class SignUpFormAdmin(UserCreationForm):
     email = forms.EmailField(
@@ -124,7 +153,7 @@ class ChangePasswordForm(SetPasswordForm):
         self.fields['new_password2'].widget.attrs['placeholder'] = 'Confirmar contraseña.'
         self.fields['new_password2'].label = ''
         self.fields['new_password2'].help_text = '<span class="form-text text-muted"><small>Ingrese su contraseña nuevamente.</small></span>'
-
+        
 class UserInfoForm(forms.ModelForm):
     phone = forms.CharField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Teléfono'}), required=False)
     address = forms.CharField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Dirección'}), required=False)

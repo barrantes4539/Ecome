@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block content %}
+<header style="background-color: #343a40; padding: 5rem;">
+    <div style="max-width: 1200px; margin: 0 auto; text-align: center; color: white;">
+        <h1 style="font-size: 2.5rem; font-weight: bold;">Registro</h1>
+        <p style="font-size: 1.25rem; color: rgba(255, 255, 255, 0.75);">Regístrate y obtiene beneficios!!</p>
+    </div>
+</header>
+<div style="max-width: 800px; margin: 0 auto; padding: 2rem;">
+    <div style="text-align: center;">
+        <!-- Display form errors -->
+        <form method="POST" action="{% url 'register' %}" style="max-width: 500px; margin: 0 auto;">
+            {% csrf_token %}
+            <div style="margin-bottom: 1rem;">
+                {{ form.username.label_tag }}
+                {{ form.username }}
+                {% if form.username.errors %}
+                    <div style="color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; padding: 0.5rem; border-radius: 0.25rem; margin-top: 0.5rem;">
+                        {% for error in form.username.errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            <div style="margin-bottom: 1rem;">
+                {{ form.first_name.label_tag }}
+                {{ form.first_name }}
+                {% if form.first_name.errors %}
+                    <div style="color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; padding: 0.5rem; border-radius: 0.25rem; margin-top: 0.5rem;">
+                        {% for error in form.first_name.errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            <div style="margin-bottom: 1rem;">
+                {{ form.last_name.label_tag }}
+                {{ form.last_name }}
+                {% if form.last_name.errors %}
+                    <div style="color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; padding: 0.5rem; border-radius: 0.25rem; margin-top: 0.5rem;">
+                        {% for error in form.last_name.errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            <div style="margin-bottom: 1rem;">
+                {{ form.email.label_tag }}
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <div style="color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; padding: 0.5rem; border-radius: 0.25rem; margin-top: 0.5rem;">
+                        {% for error in form.email.errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            <div style="margin-bottom: 1rem;">
+                {{ form.password1.label_tag }}
+                {{ form.password1 }}
+                {% if form.password1.errors %}
+                    <div style="color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; padding: 0.5rem; border-radius: 0.25rem; margin-top: 0.5rem;">
+                        {% for error in form.password1.errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            <div style="margin-bottom: 1rem;">
+                {{ form.password2.label_tag }}
+                {{ form.password2 }}
+                {% if form.password2.errors %}
+                    <div style="color: #721c24; background-color: #f8d7da; border-color: #f5c6cb; padding: 0.5rem; border-radius: 0.25rem; margin-top: 0.5rem;">
+                        {% for error in form.password2.errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            <button type="submit" style="background-color: #6c757d; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 0.25rem; cursor: pointer;">
+                Registrarme
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

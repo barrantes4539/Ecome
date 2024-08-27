@@ -13,6 +13,12 @@ from cart.cart import  Cart
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import ensure_csrf_cookie
+from .utils import generate_temp_password, store_recovery_code, send_temp_password_email
+from django.core.cache import cache
+import logging
+from django.contrib.auth import update_session_auth_hash
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
 
 
 
@@ -331,47 +337,35 @@ def add_users(request):
 
 @require_POST
 def delete_users(request):
-    # Ensure that the request is POST
+    # Asegúrate de que la solicitud sea POST
     if request.POST.get('action') == 'post':
-        # Get data
-        product_id = int(request.POST.get('product_id'))
-        product_name = request.POST.get('product_name')
-        product_price = request.POST.get('product_price')
-        product_category_id = request.POST.get('product_category')  # Obtener el ID de la categoría
-        product_image = request.FILES.get('product_image')  # Obtener la imagen del producto
-        
-        try:
-            # Obtener el producto de la base de datos
-            product = Product.objects.get(id=product_id)
-            product.name = product_name
-            product.sale_price = product_price
-            
-            # Actualizar la categoría solo si se proporcionó un ID válido y no es 'undefined'
-            if product_category_id and product_category_id != 'undefined':
-                product.category_id = int(product_category_id)
+        user_id_str = request.POST.get('user_id')
 
-            # Actualizar la imagen solo si se proporcionó
-            if product_image:
-                product.image = product_image
-            
-            # Guardar el producto actualizado
-            product.save()
-            
-            return JsonResponse({'message': f"Producto '{product_name}' actualizado correctamente."})
-        
-        except Product.DoesNotExist:
-            return JsonResponse({'error': 'El producto especificado no existe.'}, status=404)
-        
+        if not user_id_str:
+            return JsonResponse({'error': 'No se proporcionó un ID de usuario.'}, status=400)
+
+        try:
+            # Convertir user_id a entero
+            user_id = int(user_id_str)
+
+            # Obtener el usuario de la base de datos
+            user = User.objects.get(id=user_id)
+
+            # Eliminar el usuario
+            user.delete()
+
+            return JsonResponse({'message': f"Usuario con ID {user_id} eliminado correctamente."})
+
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'El usuario especificado no existe.'}, status=404)
+
         except ValueError:
-            return JsonResponse({'error': 'El ID del producto proporcionado no es válido.'}, status=400)
-        
+            return JsonResponse({'error': 'El ID del usuario proporcionado no es válido.'}, status=400)
+
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
-    
+
     return JsonResponse({'error': 'Solicitud inválida'}, status=400)
-
-
-
 
 #END ADMIN FUNCIONS
 
@@ -404,6 +398,10 @@ def category(request, cat):
         messages.success(request, ('La categoría no existe.'))
         return redirect('home')
     
+#AUTHENTICATION
+
+def recovery_page(request):
+    return render(request, 'auth/recovery_page.html', {})
 
 def login_user(request):
     if request.method == "POST":
@@ -446,40 +444,40 @@ def login_user(request):
             messages.error(request, "Usuario o contraseña incorrectos")
             return redirect('login')
     
-    return render(request, 'login.html', {})
+    return render(request, 'auth/login.html', {})
 
 def logout_user(request):
     logout(request)
     messages.success(request, ("Has cerrado sesión"))
     return redirect('home')
 
+
 def register_user(request):
-    form = SignUpForm()
     if request.method == "POST":
         form = SignUpForm(request.POST)
         if form.is_valid():
+            email = form.cleaned_data['email']
+            if User.objects.filter(email=email).exists():
+                form.add_error('email', "Este correo electrónico ya está registrado.")
+                return render(request, 'auth/register.html', {'form': form})
+            
             form.save()
             username = form.cleaned_data['username']
             password = form.cleaned_data['password1']
-            #log in user
             user = authenticate(username=username, password=password)
-            login(request, user)
-            messages.success(request, ("Has sido registrado exitosamente!!"))
-            return redirect('user_info')
+            if user is not None:
+                login(request, user)
+                messages.success(request, "¡Has sido registrado exitosamente!")
+                return redirect('user_info')
+            else:
+                messages.error(request, "Error al autenticar al usuario.")
         else:
-            # Collect form errors and display them
-            error_messages = form.errors.as_data()
-            for field, errors in error_messages.items():
-                for error in errors:
-                    messages.error(request, f"{field}: {error.message}")
-
             messages.error(request, "Ha habido un error registrando su cuenta, intente de nuevo")
-            return redirect('register')
+    else:
+        form = SignUpForm()
 
-    else:    
-        return render(request, 'register.html', {'form':form})
+    return render(request, 'auth/register.html', {'form': form})
 
-# User
 def user_info(request):
     if not request.user.is_authenticated:
         return redirect('login')
@@ -512,6 +510,7 @@ def user_profile(request):
         user_form = UpdateUserForm(instance=request.user)
     return render(request, 'user_profile.html', {'user_form': user_form})
 
+
 def update_password(request):
     if request.user.is_authenticated:
         current_user = request.user
@@ -534,7 +533,78 @@ def update_password(request):
         messages.success(request, ("Debes iniciar sesión primero"))
         return redirect('login')
 
-        
-        
+@require_http_methods(["GET", "POST"])
+def reset_password(request):
+    if request.method == 'POST':
+        data = request.POST
+        email = data.get('email')
+        new_password1 = data.get('new_password1')
+        new_password2 = data.get('new_password2')
 
+        if new_password1 != new_password2:
+            return JsonResponse({'error': 'Las contraseñas no coinciden.'}, status=400)
+        
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return JsonResponse({'error': 'Usuario no encontrado.'}, status=404)
+        
+        user.set_password(new_password1)
+        user.save()
+        
+        # Actualizar la sesión del usuario actualizada
+        update_session_auth_hash(request, user)
+        
+        return JsonResponse({'success': 'Contraseña actualizada correctamente.', 'redirect_url':'/login/'})
+    
+    # En caso de solicitud GET, recuperar el email de la sesión
+    email = request.session.get('recovery_email', '')
+    return render(request, 'auth/reset_password.html', {'email': email})
+    
+@require_POST
+def send_email_recovery(request):
+    email = request.POST.get('email')
+    
+    if not email:
+        return JsonResponse({'error': 'El correo electrónico es requerido.'}, status=400)
+    
+    try:
+        # Verificar si el correo electrónico existe en la base de datos
+        if not User.objects.filter(email=email).exists():
+            return JsonResponse({'error': 'No se encontró un usuario con ese correo electrónico.'}, status=404)
+        
+        # Generar y almacenar el código de recuperación
+        temp_password = generate_temp_password()
+        store_recovery_code(email, temp_password)
+        
+        # Enviar el código de recuperación por correo electrónico
+        send_temp_password_email(email, temp_password)
+        
+        return JsonResponse({'message': 'El código de recuperación ha sido enviado a tu correo electrónico.'})
+    
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+   
+logger = logging.getLogger(__name__)
+@require_POST
+def verify_recovery_code(request):
+    email = request.POST.get('email')
+    recovery_code = request.POST.get('recoveryCode')
+    
+    if not email or not recovery_code:
+        return JsonResponse({'error': 'Email y código de recuperación son requeridos.'}, status=400)
 
+    stored_code = cache.get(f'recovery_code_{email}')
+    
+    if stored_code:
+        if stored_code == recovery_code:
+            cache.delete(f'recovery_code_{email}')
+            # Almacenar el email en la sesión
+            request.session['recovery_email'] = email
+            # Redirigir a la página de restablecimiento de contraseña
+            return JsonResponse({'success': True, 'message': 'Código verificado correctamente.'})
+        else:
+            return JsonResponse({'error': 'Código de recuperación inválido.'}, status=400)
+    else:
+        return JsonResponse({'error': 'Código de recuperación ha expirado o es inválido.'}, status=400)
+#END AUTHENTICATION

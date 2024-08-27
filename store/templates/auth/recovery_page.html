@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% block content %}
+<!-- Header-->
+<header class="bg-dark py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <div class="text-center text-white">
+            <h1 class="display-4 fw-bolder">Recupera tu contraseña</h1>
+            <p class="lead fw-normal text-white-50 mb-0">
+                Introduce tu correo electrónico, y recibirás un código de recuperación que puedes usar para cambiar tu contraseña.
+            </p>
+        </div>
+    </div>
+</header>
+<div class="container">
+    <div class="row">
+        <center>
+            <div class="col-8">
+                <br/>
+                <br/>
+                <form id="emailRecoveryForm" method="POST" action="{% url 'send_email_recovery' %}">
+                    {% comment %} action="{% url 'send_email_recovery' %}" {% endcomment %}
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <input type="email" class="form-control" name="email" placeholder="Ingrese su correo electrónico" required>
+                    </div>
+                    <br/>
+                    <button type="submit" class="btn btn-secondary">Enviar Código</button>
+                </form>
+
+                <!-- Modal -->
+                <div class="modal fade" id="recoveryModal" tabindex="-1" role="dialog" aria-labelledby="recoveryModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="recoveryModalLabel">Código de Recuperación</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Por favor, ingresa el código de recuperación que se ha enviado a tu correo electrónico.</p>
+                                <form id="recoveryCodeForm">
+                                    <div class="form-group">
+                                        <label for="recoveryCode">Código de Recuperación</label>
+                                        <input type="text" class="form-control" id="recoveryCode" name="recoveryCode" placeholder="Ingresa tu código" required>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                                <button type="button" class="btn btn-primary" id="submitRecoveryCode">Enviar Código</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+                <br/>
+            </div>
+        </center>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#emailRecoveryForm').on('submit', function(event) {
+            event.preventDefault();
+            
+            $.ajax({
+                type: 'POST',
+                url: '{% url "send_email_recovery" %}',
+                data: $(this).serialize(),
+                success: function(response) {
+                    $('#recoveryModal').modal('show');
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '¡Error!',
+                        text: xhr.responseJSON.error,
+                    });
+                }
+            });
+        });
+    
+        $('#submitRecoveryCode').on('click', function() {
+            var recoveryCode = $('#recoveryCode').val();
+            var email = $('input[name="email"]').val();  // Ensure the email is captured correctly
+    
+            $.ajax({
+                type: 'POST',
+                url: '{% url "verify_recovery_code" %}',
+                data: {
+                    'email': email,
+                    'recoveryCode': recoveryCode,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Código Correcto',
+                        text: response.message,
+                    }).then(function() {
+                        // Redirect or update the UI as needed
+                        window.location.href = "{% url 'reset_password' %}"; // Adjust URL accordingly
+                    });
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Código Inválido',
+                        text: xhr.responseJSON.error,
+                    });
+                }
+            });
+        });
+        $('#cancelButton').on('click', function() {
+            // Limpiar el campo del código de recuperación
+            $('#recoveryCode').val('');
+            // Cerrar el modal
+            $('#recoveryModal').modal('hide');
+        });
+    
+        $('.close').on('click', function() {
+            // Limpiar el campo del código de recuperación
+            $('#recoveryCode').val('');
+            // Cerrar el modal
+            $('#recoveryModal').modal('hide');
+        });
+    });
+    
+</script>
+    
+{% endblock %}

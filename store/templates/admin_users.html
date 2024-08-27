@@ -105,6 +105,7 @@
     </div>
 </div>
 
+<!-- Modal para confirmar la eliminación de usuario -->
 <div class="modal" id="delete_user_modal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -113,6 +114,7 @@
             </div>
             <div class="modal-body">
                 <p>¿Está seguro de eliminar al usuario?</p>
+                <input type="hidden" id="delete_user_id" value="">
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -121,6 +123,7 @@
         </div>
     </div>
 </div>
+
 
 <script>
     $(document).ready(function() {
@@ -354,31 +357,22 @@
             });
         });
 
-        // Evento para eliminar un usuario
-        $(document).on('click', '#delete_user', function(e) {
+        $(document).on('click', '#confirm_delete_user', function(e) {
             e.preventDefault();
-
-            var row = $(this).closest('tr');
-            var userId = row.find('#user_id').val();
-            var username = row.find('#username').val();
-
+        
+            var userId = $('#delete_user_id').val(); // Obtén el ID del usuario desde el modal
+        
             $.ajax({
                 type: 'POST',
                 url: '{% url 'delete_users' %}',
                 data: {
                     user_id: userId,
-                    username: username,
                     csrfmiddlewaretoken: '{{ csrf_token }}',
                     action: 'post'
                 },
                 success: function(response) {
                     if (response && response.message) {
                         swal("Éxito", response.message, "success")
-                            .then(function() {
-                                window.location.reload(); // Recargar la página después de eliminar el usuario
-                            });
-                    } else {
-                        swal("Éxito", "Usuario eliminado correctamente", "success")
                             .then(function() {
                                 window.location.reload(); // Recargar la página después de eliminar el usuario
                             });
@@ -393,10 +387,24 @@
                 }
             });
         });
-
+                
         $('#add_user').click(function() {
             $('#add_user_modal').modal('show');
         });
+        
+        $(document).on('click', '#delete_user', function(e) {
+            e.preventDefault();
+        
+            var row = $(this).closest('tr');
+            var userId = row.find('#user_id').val();
+            
+            // Establecer el ID del usuario en el modal
+            $('#delete_user_id').val(userId);
+        
+            // Mostrar el modal
+            $('#delete_user_modal').modal('show');
+        });
+        
 
     });
 </script>
