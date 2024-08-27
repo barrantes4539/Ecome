@@ -35,8 +35,8 @@
                             <div class="card-body">
                                 {% if cart_products|length > 0 %}
                                     {% for product in cart_products %}
-                                    <div cart-products-row>
-                                       <div style="max-width: 100%;" class="d-flex justify-content-between">
+                                    <div>
+                                       <div style="max-width: 100%;" class="d-flex justify-content-between mt-4">
                                             <div class="d-flex flex-row align-items-center" style="max-width: 80%">
                                                 <img
                                                     src="{{product.image.url}}"
