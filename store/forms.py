@@ -42,6 +42,26 @@ class SignUpForm(UserCreationForm):
         }),
         required=True
     )
+    password1 = forms.CharField(
+        label="Contraseña",
+        max_length=100,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Contraseña',
+            'style': 'width: 100%; padding: 0.5rem; border: 1px solid #ced4da; border-radius: 0.25rem;'
+        }),
+        required=True
+    )
+    password2 = forms.CharField(
+        label="Confirmar Contraseña",
+        max_length=100,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Confirmar Contraseña',
+            'style': 'width: 100%; padding: 0.5rem; border: 1px solid #ced4da; border-radius: 0.25rem;'
+        }),
+        required=True
+    )
 
     class Meta:
         model = User  # Adjust if needed
@@ -105,9 +125,10 @@ class SignUpFormAdmin(UserCreationForm):
 
 class UpdateUserForm(UserChangeForm):
     password = None  # Remove the password field
-    email = forms.EmailField(label="", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Correo Electrónico'}), required=False)
-    first_name = forms.CharField(label="", max_length=100, widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Nombre'}), required=False)
-    last_name = forms.CharField(label="", max_length=100, widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Apellidos'}), required=False)
+    email = forms.EmailField(label="Correo Electrónico", widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Correo Electrónico'}), required=False)
+    first_name = forms.CharField(label="Nombre", max_length=100, widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Nombre'}), required=False)
+    last_name = forms.CharField(label="Apellidos", max_length=100, widget=forms.TextInput(attrs={'class':'form-control', 'placeholder':'Apellidos'}), required=False)
+    
 
     class Meta:
         model = User
@@ -117,7 +138,7 @@ class UpdateUserForm(UserChangeForm):
         super(UpdateUserForm, self).__init__(*args, **kwargs)
         self.fields['username'].widget.attrs['class'] = 'form-control'
         self.fields['username'].widget.attrs['placeholder'] = 'Nombre de Usuario'
-        self.fields['username'].label = ''
+        self.fields['username'].label = 'Nombre de Usuario'
         self.fields['username'].help_text = None  # Remove help text
         
 class UpdateUserFormAdmin(UserChangeForm):

@@ -30,7 +30,7 @@ def admin_categories(request):
     if request.user.is_authenticated and request.user.is_superuser:
         
         categories = Category.objects.all()
-        return render(request, 'admin_categories.html', {'categories':categories})
+        return render(request, 'admin/admin_categories.html', {'categories':categories})
     else:
         messages.success(request, "Access Denied")
         return redirect('home')
@@ -106,7 +106,7 @@ def admin_products(request):
     if request.user.is_authenticated and request.user.is_superuser:
         products = Product.objects.select_related('category').all()
         categories = Category.objects.all()
-        return render(request, 'admin_products.html', {'products': products, 'categories':categories})
+        return render(request, 'admin/admin_products.html', {'products': products, 'categories':categories})
     else:
         return redirect('home')
     
@@ -238,7 +238,7 @@ def admin_users(request):
         # Fetch all registered users and their related profile data
         users = User.objects.all().select_related('profile')
         
-        return render(request, 'admin_users.html', {
+        return render(request, 'admin/admin_users.html', {
             'users': users,
             'form': form,
         })

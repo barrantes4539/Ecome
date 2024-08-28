@@ -16,12 +16,11 @@ urlpatterns = [
     path('recovery_page/', views.recovery_page, name='recovery_page'),  # URL para mostrar el formulario de recuperación
     path('verify_recovery_code/', views.verify_recovery_code, name='verify_recovery_code'), 
     path('reset_password/', views.reset_password, name='reset_password'),  
-    
     #USER
     path('user_profile/', views.user_profile, name='user_profile'),
     path('user_info/', views.user_info, name='user_info'),
     path('update_password/', views.update_password, name='update_password'),
-    #ADMIN FUNCTIONS
+    #ADMIN
     path('admin_categories/', views.admin_categories, name='admin_categories'),
     path('update_categories/', views.update_categories, name='update_categories'),
     path('add_categories/', views.add_categories, name='add_categories'),
