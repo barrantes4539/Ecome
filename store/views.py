@@ -23,9 +23,7 @@ from django.views.decorators.http import require_http_methods
 
 
 
-#ADMIN FUNCTIONS
-
-#Admin Categories
+#ADMIN
 def admin_categories(request):
     if request.user.is_authenticated and request.user.is_superuser:
         
@@ -101,7 +99,6 @@ def delete_categories(request):
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
-#Admin Products
 def admin_products(request):
     if request.user.is_authenticated and request.user.is_superuser:
         products = Product.objects.select_related('category').all()
@@ -204,8 +201,6 @@ def delete_products(request):
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
-#Admin Users
-    
 def admin_users(request):
     if request.user.is_authenticated and request.user.is_superuser:
         if request.method == "POST":
@@ -337,7 +332,7 @@ def add_users(request):
 
 @require_POST
 def delete_users(request):
-    # Asegúrate de que la solicitud sea POST
+    #Asegúrate de que la solicitud sea POST
     if request.POST.get('action') == 'post':
         user_id_str = request.POST.get('user_id')
 
@@ -367,9 +362,9 @@ def delete_users(request):
 
     return JsonResponse({'error': 'Solicitud inválida'}, status=400)
 
-#END ADMIN FUNCIONS
+#END ADMIN
 
-#Store
+#USERS
 def home(request):
     products = Product.objects.all()
     return render(request, 'home.html', {'products':products})
@@ -397,20 +392,74 @@ def category(request, cat):
     except:
         messages.success(request, ('La categoría no existe.'))
         return redirect('home')
+#USERS
     
 #AUTHENTICATION
-
 def recovery_page(request):
     return render(request, 'auth/recovery_page.html', {})
 
+# def login_user(request):
+#     if request.method == "POST":
+#         username = request.POST['username']
+#         password = request.POST['password']
+#         user = authenticate(request, username=username, password=password)
+#         if user is not None:
+#             login(request, user)
+            
+#             try:
+#                 # Retrieve the profile for the logged-in user
+#                 current_user_profile = Profile.objects.get(user=user)
+                
+#                 # Get the saved cart (old_cart) from database
+#                 saved_cart = current_user_profile.old_cart
+                
+#                 if saved_cart:
+#                     try:
+#                         # Convert database string to Python dictionary
+#                         converted_cart = json.loads(saved_cart)
+                        
+#                         # Add the loaded cart items to the current session cart
+#                         cart = Cart(request)
+#                         for key, value in converted_cart.items():
+#                             cart.db_add(product=key, quantity=value)
+                        
+#                         messages.success(request, "Has iniciado sesión")
+#                     except json.JSONDecodeError:
+#                         messages.error(request, "Error al cargar el carrito guardado")
+#                 else:
+#                     messages.info(request, "Agrega productos a tu carrito!!")
+                
+#                 return redirect('home')
+            
+#             except Profile.DoesNotExist:
+#                 messages.error(request, "No se encontró el perfil asociado con su cuenta")
+#                 return redirect('login')
+            
+#         else:
+#             messages.error(request, "Usuario o contraseña incorrectos")
+#             return redirect('login')
+    
+#     return render(request, 'auth/login.html', {})
+
 def login_user(request):
     if request.method == "POST":
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
+        login_input = request.POST.get('login')  # Nombre de usuario o correo electrónico
+        password = request.POST.get('password')
+
+        # Intentar autenticar usando nombre de usuario
+        user = authenticate(request, username=login_input, password=password)
+
+        # Si no se encontró un usuario con el nombre de usuario, intentar con el correo electrónico
+        if user is None:
+            try:
+                # Intentar obtener el usuario por correo electrónico
+                user = User.objects.get(email=login_input)
+                user = authenticate(request, username=user.username, password=password)
+            except User.DoesNotExist:
+                user = None
+
         if user is not None:
             login(request, user)
-            
             try:
                 # Retrieve the profile for the logged-in user
                 current_user_profile = Profile.objects.get(user=user)

@@ -3,8 +3,7 @@
 
 {% if user.is_authenticated %}
     {% if user.is_superuser %}
-        <!-- Contenido para superusuario -->
-        <header class="bg-dark py-5">
+        <header class="bg-dark py-5" style="border-radius: 0 0 50px 50px; overflow: hidden;">
             <div class="container px-4 px-lg-5 my-5">
                 <div class="row justify-content-center">
                     <div class="col-lg-8 col-md-10 text-center">
@@ -17,7 +16,7 @@
         </header>
     {% else %}
         <!-- Contenido para usuarios autenticados no superusuario -->
-        <header class="bg-dark py-5">
+        <header class="bg-dark py-5" style="border-radius: 0 0 50px 50px; overflow: hidden;">
             <div class="container px-4 px-lg-5 my-5">
                 <div class="row justify-content-center">
                     <div class="col-lg-8 col-md-10 text-center">
@@ -30,7 +29,7 @@
     {% endif %}
 {% else %}
     <!-- Contenido para usuarios no autenticados -->
-    <header class="bg-dark py-5">
+    <header class="bg-dark py-5" style="border-radius: 0 0 50px 50px; overflow: hidden;">
         <div class="container px-4 px-lg-5 my-5">
             <div class="row justify-content-center">
                 <div class="col-lg-8 col-md-10 text-center">
@@ -53,17 +52,17 @@
     <div class="container px-4 px-lg-5 mt-2">
         <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
             <div class="input-group mb-3 mt-4">
-                <input type="text" id="searchInput" class="form-control" placeholder="Buscar..." aria-label="Search" aria-describedby="basic-addon2">
+                <input type="text" id="searchInput" class="form-control" style="border: 1px solid black;" placeholder="Buscar..." aria-label="Search" aria-describedby="basic-addon2">
             </div>
             <div id="noProductsMessage" class="col-12 text-center" style="display: none;">
                 <p>No existe el producto buscado</p>
             </div>
             {% for product in products|slice:":6" %}
             <div class="col-lg-4 col-md-6 mb-4 product-item">
-                <div class="card shadow-sm border-0 h-100">
-                    <!-- Product image-->
-                    <img class="card-img-top" src="{{ product.image.url }}" alt="{{ product.name }}" style="height: 250px; object-fit: cover;">
-                    <!-- Product details-->
+                <div class="card shadow-sm border-0 h-100" style="border-radius: 10%;">
+                    <!-- Product image -->
+                    <img class="card-img-top" src="{{ product.image.url }}" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                    <!-- Product details -->
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title fw-bold mb-2">{{ product.name }}</h5>
                         <p class="card-text text-muted mb-3">{{ product.description }}</p>
