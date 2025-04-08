@@ -87,102 +87,64 @@ def shipped_dash(request):
 
 #Customer
 def process_order(request):
-    if request.POST:
-        # Get the cart
+    if request.method == "POST":
         cart = Cart(request)
         cart_products = cart.get_products
         quantities = cart.get_quants
         totals = cart.cart_total()
-        
-        #Get Billing Info from the last page
+
         payment_form = PaymentForm(request.POST or None)
-        
-        #Get Shipping Session Data
         my_shipping = request.session.get('my_shipping')
-        
-        #Gather Order Info
+
         full_name = my_shipping['shipping_full_name']
         email = my_shipping['shipping_email']
-    
-        #Create Shipping Address from session Info
         shipping_address = f"{my_shipping['shipping_address1']}\n{my_shipping['shipping_address2']}\n{my_shipping['shipping_city']}\n{my_shipping['shipping_state']}\n{my_shipping['shipping_zipcode']}\n{my_shipping['shipping_country']}"
         amount_paid = totals
-        
-        #Create an Order8
-        if request.user.is_authenticated:
-            
-            #Logged in
-            user = request.user
-            
-            '''Create Order'''
-            create_order = Order(user=user, full_name=full_name, email=email, shipping_address=shipping_address, amount_paid=amount_paid)
-            create_order.save()
-            
-            '''Add Order Items'''
-            #Get the Order ID
-            order_id = create_order.pk
-            
-            for product in cart_products():
-                #Get product ID
-                product_id = product.id
-                #Get product price
-                price = product.sale_price
-                #Get quantity of each product
-                for key,value in quantities().items():
-                    if int(key) == product.id:
-                        '''Create Order Item'''
-                        create_order_item = OrderItem(order_id=order_id,product_id=product_id,quantity=value,price=price)
-                        create_order_item.save()
-            
-            '''Delete our cart from cookies'''
-            for key in list(request.session.keys()):
-                if key == "session_key":
-                    # Delete the key
-                    del request.session[key]
-                    
-            '''Delete our cart from Database (old_cart field)'''
-            current_user = Profile.objects.filter(user__id=request.user.id)
-            
-            '''Delete our cart from Database (old_cart field)'''
-            current_user.update(old_cart="")
-            
-                        
-            messages.success(request, "Order Placed!")
-            return redirect('home')
-        else:
-            #Create Order as guest
-            #Get the Order ID
-            create_order = Order(user=user, full_name=full_name, email=email, shipping_address=shipping_address, amount_paid=amount_paid)
-            create_order.save()
-            
-            #Add Order Items as guest
-            #Get the Order ID
-            order_id = create_order.pk
-            
-            for product in cart_products():
-                #Get product ID
-                product_id = product.id
-                #Get product price
-                price = product.sale_price
-                #Get quantity of each product
-                for key,value in quantities().items():
-                    if int(key) == product.id:
-                        '''Create Order Item as guest'''
-                        create_order_item = OrderItem(order_id=order_id,product_id=product_id,user=user,quantity=value,price=price)
-                        create_order_item.save()
-            
-            '''Delete our cart'''
-            for key in list(request.session.keys()):
-                if key == "session_key":
-                    # Delete the key
-                    del request.session[key]
-                        
-            messages.success(request, "Order Placed!")
-            return redirect('home')
-    else:
-        messages.success(request, "Acceso Denegado")
-        return redirect('home')
 
+        if request.user.is_authenticated:
+            user = request.user
+        else:
+            user = None  # Usuario invitado
+
+        # Crear orden
+        create_order = Order(
+            user=user,
+            full_name=full_name,
+            email=email,
+            shipping_address=shipping_address,
+            amount_paid=amount_paid
+        )
+        create_order.save()
+
+        # Agregar productos a la orden
+        order_id = create_order.pk
+        for product in cart_products():
+            product_id = product.id
+            price = product.sale_price
+            for key, value in quantities().items():
+                if int(key) == product.id:
+                    OrderItem.objects.create(
+                        order_id=order_id,
+                        product_id=product_id,
+                        quantity=value,
+                        price=price,
+                        user=user if not request.user.is_authenticated else None
+                    )
+
+        # Limpiar carrito (cookie y BD si está autenticado)
+        if request.user.is_authenticated:
+            Profile.objects.filter(user__id=request.user.id).update(old_cart="")
+        if "session_key" in request.session:
+            del request.session["session_key"]
+
+        # Mostrar mensaje de éxito
+        messages.success(request, "¡Tu compra ha sido realizada con éxito!")
+
+        return redirect('home')
+    
+    else:
+        messages.warning(request, "Acceso denegado.")
+        return redirect('home')
 
 def billing_info(request):
     
@@ -231,6 +193,3 @@ def checkout(request):
         # Checkout as guest
         return render(request, "payment/checkout.html", {"cart_products": cart_products, "quantities": quantities, "totals": totals, "shipping_form": shipping_form})
     
-
-def payment_success(request):
-    return render(request, "payment/payment_success.html", {})

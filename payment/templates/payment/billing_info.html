@@ -12,6 +12,19 @@
         </div>
     </header>
     <br>
+
+    <!-- Mensajes de éxito u otros -->
+    {% if messages %}
+      <div class="container mt-4">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
     <div class="container">
         <div class="row">
             <div class="col-md-6 offset-md-3">
@@ -39,15 +52,13 @@
                         <br> <br>
                         <a href="{% url 'cart_summary' %}" class="btn btn-sm btn-outline-secondary">Update Items</a>
                     </div>
-                  </div>
-                  <br><br>
-                  <div class="card">
+                </div>
+                <br><br>
+                <div class="card">
                     <div class="card-header">
                       Shipping Info
                     </div>
                     <div class="card-body">
-                    
-           
                         Name: {{ shipping_info.shipping_full_name }} <br>
                         Correo Electrónico: {{ shipping_info.shipping_email }} <br>
                         Dirección: {{ shipping_info.shipping_address1 }} <br>
@@ -58,31 +69,46 @@
                         País: {{ shipping_info.shipping_country }} <br>
                         <br>
                         <a href="{% url 'checkout' %}" class="btn btn-outline-secondary">Update Shipping</a>
-                    
                     </div>
-                  </div>
-                  <br>
-
-                  <div class="card">
-                    <div class="card-header">
-                      Billing Info
+                </div>
+                <br>
+                <div class="card">
+                    <div class="card-header mb-3">
+                        Detalles de Pago
                     </div>
-                    <div class="card-body">
-                        <form method="POST" action="{% url 'process_order' %}">
-                            {% csrf_token %}
-                            {{ billing_form.as_p }}
-                        
-                        
-                    
-                    </div>
-                  </div>
-                  <br>
-                  <button type="submit" class="btn btn-secondary">Comprar ya</button>
-                </form>
-                  <br><br>
-        
-      
+                    <form method="POST" action="{% url 'process_order' %}">
+                        {% csrf_token %}
+                        <div class="container d-flex justify-content-center align-items-center min-vh-90">
+                            <div class="card shadow p-4 position-relative" style="max-width: 500px; width: 100%;">
+                                <i class='bx bx-credit-card position-absolute top-0 end-0 p-2' style="font-size: 30px;"></i>
+                                <div class="mb-3">
+                                    <label for="cardNumber" class="form-label">Número de Tarjeta</label>
+                                    <input type="text" class="form-control" id="cardNumber" name="cardNumber" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="cardName" class="form-label">Nombre de Tarjeta</label>
+                                    <input type="text" class="form-control" id="cardName" name="cardName" required>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="expiryDate" class="form-label">Fecha de Expiración (MM/YY)</label>
+                                        <input type="text" class="form-control" id="expiryDate" name="expiryDate" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="cvv" class="form-label">CVV</label>
+                                        <input type="password" class="form-control" id="cvv" name="cvv" required>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-center">
+                                    <button type="submit" class="btn btn-primary w-50">Comprar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <br><br>
+                </div>
             </div>
         </div>
     </div>
+    <br>
 {% endblock content %}

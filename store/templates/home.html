@@ -36,7 +36,7 @@
                     <h1 class="display-4 text-white fw-bold mb-4">Bienvenido a Ecom!!</h1>
                     <p class="lead text-white-50 mb-4">Regístrate ahora para disfrutar de una experiencia de compra fluida. Olvídate de ingresar repetidamente tu dirección de entrega y detalles de pago en cada compra.</p>
                     <div class="mb-4">
-                        <a href="{% url 'register' %}" class="btn btn-primary btn-lg me-4" style="background-color: #0FEFFF; color: black;">Registrarme</a>
+                        <a href="{% url 'register' %}" class="btn btn-primary btn-lg me-4" style="background-color: #0FEFFF; color: black; border: white;">Registrarme</a>
                         <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">Iniciar Sesión</a>
                     </div>
                 </div>
@@ -68,7 +68,7 @@
                         <p class="card-text text-muted mb-3">{{ product.description }}</p>
                         <div class="mt-auto text-center">
                             <div class="price">₡{{ product.sale_price }}</div>
-                            <a href="{% url 'product' product.id %}" class="btn btn-outline-dark mt-3">Detalles</a>
+                            <a href="{% url 'product' product.id %}" class="btn btn-dark mt-3">Detalles</a>
                         </div>
                     </div>
                 </div>
