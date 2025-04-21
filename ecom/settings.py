@@ -1,5 +1,11 @@
+
 from pathlib import Path
 import environ
+import os
+# from dotenv import load_dotenv
+
+# #Cargar las variables globales
+# load_dotenv()
 
 # Inicializa la lectura del archivo .env
 env = environ.Env()
@@ -15,6 +21,7 @@ SECRET_KEY = env('DJANGO_SECRET_KEY')
 DEBUG = env.bool('DJANGO_DEBUG', default=False)
 
 ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=[])
+CRSF_TRUSTED_ORIGINS = []
 
 
 # Application definition
@@ -28,6 +35,7 @@ INSTALLED_APPS = [
     'store',
     'cart',
     'payment',
+    'whitenoise.runserver_nostatic',
 ]
 
 MIDDLEWARE = [
@@ -38,6 +46,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'ecom.urls'
@@ -78,13 +87,19 @@ DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
 
 WSGI_APPLICATION = 'ecom.wsgi.application'
 
-# Database
+#Database
 DATABASES = {
     'default': {
-        'ENGINE': env('DATABASE_ENGINE'),
-        'NAME': BASE_DIR / env('DATABASE_NAME'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME':env('DATABASE_NAME'),
+        'USER':env('DATABASE_USER'),
+        'PASSWORD':env('DATABASE_PASSWORD'),
+        'HOST':env('DATABASE_HOST'),
+        'PORT':env('DATABASE_PORT'),
+        #'NAME': BASE_DIR / env('DATABASE_NAME'),
     }
 }
+
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -104,6 +119,10 @@ LANGUAGE_CODE = env('LANGUAGE_CODE', default='en-us')
 TIME_ZONE = env('TIME_ZONE', default='UTC')
 USE_I18N = env.bool('USE_I18N', default=True)
 USE_TZ = env.bool('USE_TZ', default=True)
+
+#Whitenoise static files
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = env('STATIC_URL', default='static/')
