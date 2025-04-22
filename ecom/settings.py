@@ -22,7 +22,7 @@ SECRET_KEY = env('DJANGO_SECRET_KEY')
 DEBUG = env.bool('DJANGO_DEBUG', default=False)
 
 ALLOWED_HOSTS = ['ecome-production.up.railway.app', 'https://ecome-production.up.railway.app']
-CRSF_TRUSTED_ORIGINS = ['ecome-production.up.railway.app', 'https://ecome-production.up.railway.app']
+CRSF_TRUSTED_ORIGINS = ['https://ecome-production.up.railway.app']
 
 
 # Application definition
