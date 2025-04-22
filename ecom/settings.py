@@ -3,6 +3,9 @@ from pathlib import Path
 import environ
 import os
 from dotenv import load_dotenv
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 # from dotenv import load_dotenv
 
 # #Cargar las variables globales
@@ -21,9 +24,9 @@ SECRET_KEY = env('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('DJANGO_DEBUG', default=False)
 
+#HOSTS
 ALLOWED_HOSTS = ['ecome-production.up.railway.app', 'https://ecome-production.up.railway.app']
 CSRF_TRUSTED_ORIGINS = ['https://ecome-production.up.railway.app']
-
 
 # Application definition
 INSTALLED_APPS = [
@@ -37,6 +40,7 @@ INSTALLED_APPS = [
     'cart',
     'payment',
     'whitenoise.runserver_nostatic',
+    'cloudinary',
 ]
 
 MIDDLEWARE = [
@@ -130,6 +134,18 @@ STATIC_URL = env('STATIC_URL', default='static/')
 STATICFILES_DIRS = [BASE_DIR / env('STATICFILES_DIRS', default='static/')]
 MEDIA_URL = env('MEDIA_URL', default='media/')
 MEDIA_ROOT = BASE_DIR / env('MEDIA_ROOT', default='media/')
+
+# Cloudinary settings - Django integration
+
+cloudinary.coinfig (
+    cloud_name = 'dgrsokqj9',
+    api_key = '782651575152937',
+    api_secret = 'nyGA20WTcork2-6xd6Wd7aQXBns'
+)
+# cloud name: dgrsokqj9
+# api key: nyGA20WTcork2-6xd6Wd7aQXBns
+# api name: 782651575152937
+# api env variable: CLOUDINARY_URL=cloudinary://<your_api_key>:<your_api_secret>@dgrsokqj9
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

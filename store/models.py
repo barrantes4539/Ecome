@@ -2,6 +2,7 @@ from django.db import models
 import datetime
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
+from cloudinary.models import CloudinaryField
 
 
 #Create customer profile
@@ -58,7 +59,7 @@ class Product(models.Model):
     price = models.IntegerField(default=1)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, default=1)
     description = models.CharField(max_length=250, default='', blank=True, null=True)
-    image = models.ImageField(upload_to='uploads/product/')
+    image = CloudinaryField('image')
     #Sale variable
     is_sale = models.BooleanField(default=False)
     sale_price = models.IntegerField(default=1)
