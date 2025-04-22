@@ -16,7 +16,7 @@ environ.Env.read_env(env_file=Path(__file__).resolve().parent.parent / '.env')
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('DJANGO_SECRET_KEY')
+SECRET_KEY = os.environ('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('DJANGO_DEBUG', default=False)
@@ -92,11 +92,11 @@ WSGI_APPLICATION = 'ecom.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME':env('DATABASE_NAME'),
-        'USER':env('DATABASE_USER'),
+        'NAME':'railway',
+        'USER':'postgres',
         'PASSWORD':os.environ['DB_PASSWORD_YO'],
-        'HOST':env('DATABASE_HOST'),
-        'PORT':env('DATABASE_PORT'),
+        'HOST':'tramway.proxy.rlwy.net',
+        'PORT':'50273',
         #'NAME': BASE_DIR / env('DATABASE_NAME'),
     }
 }
