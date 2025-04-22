@@ -95,10 +95,10 @@ WSGI_APPLICATION = 'ecom.wsgi.application'
 #Database
 DATABASES = {
     'default': {
-        'ENGINE': os.environ['DATABASE_ENGINE'],
+        'ENGINE': env('DATABASE_ENGINE'),
         'NAME':'railway',
         'USER':'postgres',
-        'PASSWORD': os.environ['DB_PASSWORD_YO'],
+        'PASSWORD': env('DB_PASSWORD_YO'),
         'HOST':'tramway.proxy.rlwy.net',
         'PORT':'50273',
         #'NAME': BASE_DIR / env('DATABASE_NAME'),
