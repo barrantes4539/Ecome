@@ -95,15 +95,15 @@ WSGI_APPLICATION = 'ecom.wsgi.application'
 #Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('DB_NAME', default='railway'),
-        'USER': env('DB_USER', default='postgres'),
-        'PASSWORD': env('DB_PASSWORD_YO', default=''),
-        'HOST': env('DB_HOST', default='localhost'),
-        'PORT': env('DB_PORT', default='5432'),
+        'ENGINE': os.environ['DATABASE_ENGINE'],
+        'NAME':'railway',
+        'USER':'postgres',
+        'PASSWORD': os.environ['DB_PASSWORD_YO'],
+        'HOST':'tramway.proxy.rlwy.net',
+        'PORT':'50273',
+        #'NAME': BASE_DIR / env('DATABASE_NAME'),
     }
 }
-
 print("DATABASE CONFIG:", DATABASES)
 
 
