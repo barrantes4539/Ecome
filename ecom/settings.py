@@ -2,6 +2,7 @@
 from pathlib import Path
 import environ
 import os
+from dotenv import load_dotenv
 # from dotenv import load_dotenv
 
 # #Cargar las variables globales
@@ -93,7 +94,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME':env('DATABASE_NAME'),
         'USER':env('DATABASE_USER'),
-        'PASSWORD':env('DATABASE_PASSWORD'),
+        'PASSWORD':os.environ['DB_PASSWORD_YO'],
         'HOST':env('DATABASE_HOST'),
         'PORT':env('DATABASE_PORT'),
         #'NAME': BASE_DIR / env('DATABASE_NAME'),
