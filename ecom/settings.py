@@ -98,7 +98,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME':'railway',
         'USER':'postgres',
-        'PASSWORD':os.environ['DB_PASSWORD_YO'],
+        #'PASSWORD':os.environ['DB_PASSWORD_YO'],
+        'PASSWORD':'RHPwtXqKmYvcDzHMPpAVzuVOdEyuasaq',
         'HOST':'tramway.proxy.rlwy.net',
         'PORT':'50273',
         #'NAME': BASE_DIR / env('DATABASE_NAME'),
@@ -137,7 +138,7 @@ MEDIA_ROOT = BASE_DIR / env('MEDIA_ROOT', default='media/')
 
 # Cloudinary settings - Django integration
 
-cloudinary.coinfig (
+cloudinary.config (
     cloud_name = 'dgrsokqj9',
     api_key = '782651575152937',
     api_secret = 'nyGA20WTcork2-6xd6Wd7aQXBns'
