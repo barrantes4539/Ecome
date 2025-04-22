@@ -95,7 +95,7 @@ WSGI_APPLICATION = 'ecom.wsgi.application'
 #Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE':'django.db.backends.postgresql_psycopg2',
         'NAME':'railway',
         'USER':'postgres',
         'PASSWORD': env('DB_PASSWORD_YO'),
