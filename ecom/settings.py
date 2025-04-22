@@ -98,12 +98,14 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME':'railway',
         'USER':'postgres',
-        'PASSWORD':env('DB_PASSWORD_YO'),
+        'PASSWORD': env('DB_PASSWORD_YO', default=''),
         'HOST':'tramway.proxy.rlwy.net',
         'PORT':'50273',
         #'NAME': BASE_DIR / env('DATABASE_NAME'),
     }
 }
+print("DATABASE CONFIG:", DATABASES)
+
 
 
 # Password validation
