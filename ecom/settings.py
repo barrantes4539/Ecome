@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
+import dj_database_url
 # from dotenv import load_dotenv
 
 # #Cargar las variables globales
@@ -93,24 +94,26 @@ DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
 WSGI_APPLICATION = 'ecom.wsgi.application'
 
 #Database
+# DATABASES = {
+#     'default': {
+#         'ENGINE':'django.db.backends.postgresql_psycopg2',
+#         'NAME':'railway',
+#         'USER':'postgres',
+#         'PASSWORD': 'RHPwtXqKmYvcDzHMPpAVzuVOdEyuasaq',
+#         'HOST':'tramway.proxy.rlwy.net',
+#         'PORT':'50273',
+#         'NAME': BASE_DIR / env('DATABASE_NAME'),
+#     }
+# }
+# print("DATABASE CONFIG:", DATABASES)
+
+# print("DJANGO SETTINGS MODULE:", os.environ.get('DJANGO_SETTINGS_MODULE'))
+# print("DATABASE ENGINE:", DATABASES['default'].get('ENGINE'))
+
+
 DATABASES = {
-    'default': {
-        'ENGINE':'django.db.backends.postgresql_psycopg2',
-        'NAME':'railway',
-        'USER':'postgres',
-        'PASSWORD': 'RHPwtXqKmYvcDzHMPpAVzuVOdEyuasaq',
-        'HOST':'tramway.proxy.rlwy.net',
-        'PORT':'50273',
-        #'NAME': BASE_DIR / env('DATABASE_NAME'),
-    }
+    'default': dj_database_url.config(default=env('DATABASE_URL'))
 }
-print("DATABASE CONFIG:", DATABASES)
-
-print("DJANGO SETTINGS MODULE:", os.environ.get('DJANGO_SETTINGS_MODULE'))
-print("DATABASE ENGINE:", DATABASES['default'].get('ENGINE'))
-
-
-
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
