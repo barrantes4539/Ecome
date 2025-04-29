@@ -95,7 +95,7 @@ WSGI_APPLICATION = 'ecom.wsgi.application'
 #Database
 DATABASES = {
     'default': {
-        'ENGINE':'django.db.backends.postgresql',
+        'ENGINE':'django.db.backends.postgresql_psycopg2',
         'NAME':'railway',
         'USER':'postgres',
         'PASSWORD': 'RHPwtXqKmYvcDzHMPpAVzuVOdEyuasaq',
@@ -151,3 +151,5 @@ cloudinary.config (
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# export DJANGO_SETTINGS_MODULE=settings
