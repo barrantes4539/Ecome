@@ -111,8 +111,12 @@ WSGI_APPLICATION = 'ecom.wsgi.application'
 
 
 DATABASES = {
-    'default': dj_database_url.config(default=env('DATABASE_URL'))
+    'default': dj_database_url.parse(
+        env('DATABASE_URL'),
+        engine='django.db.backends.postgresql'  # Forzamos el ENGINE aquí
+    )
 }
+
 
 print("DATABASE ENGINE:", DATABASES['default'].get('ENGINE'))
 
