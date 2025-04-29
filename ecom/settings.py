@@ -106,6 +106,10 @@ DATABASES = {
 }
 print("DATABASE CONFIG:", DATABASES)
 
+print("DJANGO SETTINGS MODULE:", os.environ.get('DJANGO_SETTINGS_MODULE'))
+print("DATABASE ENGINE:", DATABASES['default'].get('ENGINE'))
+
+
 
 
 # Password validation
