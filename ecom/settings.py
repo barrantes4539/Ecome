@@ -108,12 +108,13 @@ WSGI_APPLICATION = 'ecom.wsgi.application'
 # print("DATABASE CONFIG:", DATABASES)
 
 # print("DJANGO SETTINGS MODULE:", os.environ.get('DJANGO_SETTINGS_MODULE'))
-# print("DATABASE ENGINE:", DATABASES['default'].get('ENGINE'))
 
 
 DATABASES = {
     'default': dj_database_url.config(default=env('DATABASE_URL'))
 }
+
+print("DATABASE ENGINE:", DATABASES['default'].get('ENGINE'))
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
