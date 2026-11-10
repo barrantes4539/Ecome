@@ -93,22 +93,6 @@ DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
 
 WSGI_APPLICATION = 'ecom.wsgi.application'
 
-#Database
-# DATABASES = {
-#     'default': {
-#         'ENGINE':'django.db.backends.postgresql_psycopg2',
-#         'NAME':'railway',
-#         'USER':'postgres',
-#         'PASSWORD': 'RHPwtXqKmYvcDzHMPpAVzuVOdEyuasaq',
-#         'HOST':'tramway.proxy.rlwy.net',
-#         'PORT':'50273',
-#         'NAME': BASE_DIR / env('DATABASE_NAME'),
-#     }
-# }
-# print("DATABASE CONFIG:", DATABASES)
-
-# print("DJANGO SETTINGS MODULE:", os.environ.get('DJANGO_SETTINGS_MODULE'))
-
 
 DATABASES = {
     'default': dj_database_url.parse(
@@ -156,10 +140,7 @@ cloudinary.config (
     CLOUD_API_KEY = env('CLOUD_API_KEY'),
     CLOUD_API_SECRET = env('CLOUD_API_SECRET'),
 )
-# cloud name: dgrsokqj9
-# api key: nyGA20WTcork2-6xd6Wd7aQXBns
-# api name: 782651575152937
-# api env variable: CLOUDINARY_URL=cloudinary://<your_api_key>:<your_api_secret>@dgrsokqj9
+
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
